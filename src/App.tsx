@@ -1,19 +1,31 @@
 // functional
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import "./App.css";
 import CardList from "./components/CardList/CardList";
 import SearchBox from "./components/SearchBox/SearchBox";
 import "./App.css";
+import { getData } from "./utils/data.utils";
+
+export type Monster = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 function App() {
   const [query, setQuery] = useState("");
-  const [monsters, setMonsters] = useState([]);
+  const [monsters, setMonsters] = useState<Monster[]>([]);
   const [filteredMonsters, setFilteredMonsters] = useState(monsters);
 
   useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => response.json())
-      .then((users) => setMonsters(users));
+    const fetchUsers = async () => {
+      const users = await getData<Monster[]>(
+        "https://jsonplaceholder.typicode.com/users"
+      );
+      setMonsters(users);
+    };
+
+    fetchUsers();
   }, []);
 
   useEffect(() => {
@@ -24,7 +36,7 @@ function App() {
     setFilteredMonsters(newFilteredMonsters);
   }, [monsters, query]);
 
-  const onSearchEvent = (event) => {
+  const onSearchEvent = (event: ChangeEvent<HTMLInputElement>): void => {
     const queryString = event.target.value.toLowerCase();
     setQuery(queryString);
   };
